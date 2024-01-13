@@ -1,10 +1,17 @@
 import fastapi as fa
+import pydantic
 import uvicorn
 
 from tortoise.contrib.fastapi import register_tortoise
+from api.router import router
+from core.exc.handlers import (
+    query_params_validation_error_handler,
+    request_exception_handler,
+    internal_exception_handler,
+)
+from core.exc.http import BaseHTTPException
 
 from db.conf import TORTOISE_ORM
-from api.router import router
 
 
 def setup():
@@ -12,11 +19,15 @@ def setup():
     application.include_router(router)
     
     register_tortoise(
-        app=application,
+        application,
         config=TORTOISE_ORM,
         generate_schemas=True,
         add_exception_handlers=True,
     )
+    application.exception_handler(pydantic.ValidationError)(query_params_validation_error_handler)
+    application.exception_handler(BaseHTTPException)(request_exception_handler)
+    application.exception_handler(500)(internal_exception_handler)
+    
     
     return application
 
@@ -25,5 +36,5 @@ app = setup()
 
 
 def run(**params):
-    uvicorn.run('api.application:app', host='0.0.0.0', **params)
+    uvicorn.run(app='api.application:app', host='0.0.0.0', **params)
     
