@@ -1,8 +1,13 @@
+from core.settings import database_url
+
+
 TORTOISE_ORM = {
-    'connections': {'default': 'postgres://edu-user:edu-pass@postgres:5432/education'},
+    'connections': {
+        'default': f'{database_url}',
+    },
     'apps': {
         'models': {
-            'models': ['aerich.models'],
+            'models': ['aerich.models', 'db.models'],
             'default_connection': 'default',
         },
     },

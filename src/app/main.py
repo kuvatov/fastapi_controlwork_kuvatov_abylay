@@ -1,16 +1,10 @@
-from fastapi import FastAPI
+from api import application
 
 
-app = FastAPI()
-
-
-@app.get('/')
-async def get_hello():
-    return {'Hello': 'World'}
-
-
-if __name__ == '__main__':
-    import uvicorn
+def main():
+    application.run(reload=True, )
     
-    uvicorn.run('main:app', host='0.0.0.0', )
+    
+if __name__ == '__main__':
+    main()
     
