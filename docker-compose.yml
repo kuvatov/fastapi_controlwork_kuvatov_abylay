@@ -1,0 +1,40 @@
+version: '3'
+
+
+x-shared-environment: &shared-environment
+  POSTGRES_HOST: 'postgres'
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: 'education'
+  POSTGRES_USER: 'edu-user'
+  POSTGRES_PASSWORD: 'edu-pass'
+
+
+x-base-image: &base-image
+  restart: always
+  environment:
+    <<: *shared-environment
+
+
+services:
+  postgres:
+    <<: *base-image
+    image: 'postgres:15-alpine'
+    hostname: postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  app:
+    <<: *base-image
+    hostname: app
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - PYTHON_VERSION=3.11
+    volumes:
+      - .:/app
+    command: ["python3", "app/main.py"]
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
