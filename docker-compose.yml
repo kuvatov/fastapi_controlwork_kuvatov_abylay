@@ -1,19 +1,10 @@
 version: '3'
 
 
-x-shared-environment: &shared-environment
-  POSTGRES_HOST: ${POSTGRES_HOST}
-  POSTGRES_PORT: ${POSTGRES_PORT}
-  POSTGRES_DB: ${POSTGRES_DB}
-  POSTGRES_USER: ${POSTGRES_USER}
-  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-
-
 x-base-image: &base-image
   restart: always
-  environment:
-    <<: *shared-environment
+  env_file:
+      - .env
 
 
 services:
@@ -33,9 +24,20 @@ services:
       args:
         - PYTHON_VERSION=3.11
     volumes:
-      - .:/app
-    command: ["python3", "app/main.py"]
+      - ./src:/edu/src
+    command: python3 src/app/main.py
     ports:
       - '8000:8000'
     depends_on:
       - postgres
+
+  minio:
+    <<: *base-image
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+    command: server --console-address :9090 /data
+    volumes:
+      - ./minio/data:/data
+      - ./minio/conf:/root/.minio

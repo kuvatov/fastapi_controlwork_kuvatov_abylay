@@ -2,6 +2,7 @@ from pydantic import Field
 from datetime import datetime
 from uuid import UUID
 from core.schemas import BaseModel
+from api.material.schemas.requests import MaterialGet
 
 
 class SubjectBase(BaseModel):
@@ -26,4 +27,5 @@ class SubjectUpdate(SubjectAllOptional):
 
 
 class SubjectGet(SubjectAllOptional):
+    # materials: list[MaterialGet]
     pass
